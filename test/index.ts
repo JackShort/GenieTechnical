@@ -56,8 +56,8 @@ describe('JenieBatchCanceller', function () {
         });
     });
 
-    describe('createListings', function () {
-        it('Should list my NFTs', async function () {
+    describe('createAndCancel', function () {
+        it('Should list my NFTs then proceed to cancel them', async function () {
             await network.provider.request({
                 method: 'hardhat_impersonateAccount',
                 params: ['0xaDd287e6d0213e662D400d815C481b4b2ddE5d65']
@@ -79,7 +79,10 @@ describe('JenieBatchCanceller', function () {
             await cloneXContract.setApprovalForAll(hardhatJenieBatchCancellor.address, true);
             await dinoContract.setApprovalForAll(hardhatJenieBatchCancellor.address, true);
 
-            await hardhatJenieBatchCancellor.connect(signer).listOrders(listings, true);
+            const tx = await hardhatJenieBatchCancellor.connect(signer).listOrders(listings, true);
+            const receipt = await tx.wait();
+            const logs = receipt.logs;
+            expect(logs.length).to.equal(6);
         });
     });
 });
