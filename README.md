@@ -1,46 +1,13 @@
-# Bulk listing cancellation
+# Genie Bulk Listing Cancellation
 
-This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
+The request was to create a contract that can bulk cancel listings made on OpenSea.
 
-The project comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts. It also comes with a variety of other tools, preconfigured to work with the project code.
+In the project there is a contract called BatchCancel.sol, which has a public function batchCancel. This function is the implementation that was requested, which takes in an array of orders and proceeds to cancel them. I consequentially made a batch list function called listOrders which takes in an array of NFTs that the user owns and proceeds to list them on OpenSea. I made this to appropriately test that my batch canceller worked. Sidenote, it does not fully list them on OpenSea, meaning that it lists them through the contract, but I did not call the OpenSea SDK to fully post the items. It puts them in their orderbook which subsequently allowed me to cancel them.
 
-Try running some of the following tasks:
+Scott mentioned to me that he plans on implementing this for any exchange, so I made an implementation for that. The function is called generalBatchCanceller and it takes in an input of an array of [exchangeId, calldata]. So this allows you to call the cancel function with any parameters for any exchange that has one. This is achieved with simply holding an array of exchanges and a parameter of a CancelInstruction is the exchangeId, which is simply a pointer to an exchange in the array. Then you proceed to call the given exchange using the appropriate calldata.
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-npx hardhat help
-REPORT_GAS=true npx hardhat test
-npx hardhat coverage
-npx hardhat run scripts/deploy.ts
-TS_NODE_FILES=true npx ts-node scripts/deploy.ts
-npx eslint '**/*.{js,ts}'
-npx eslint '**/*.{js,ts}' --fix
-npx prettier '**/*.{json,sol,md}' --check
-npx prettier '**/*.{json,sol,md}' --write
-npx solhint 'contracts/**/*.sol'
-npx solhint 'contracts/**/*.sol' --fix
-```
+The contract is currently deployed on Rinkeby at the address here: 0x796b0F208480a7bEa455B3154D4fEAA40E5C1215. I have tested that all the functions work properly, however, only on OpenSea, though it should work with Rarible. You are able to view the transaction logs where you can see that it created listings through OpenSea and proceeded to cancel them.
 
-# Etherscan verification
+There are scripts in the script folder that allow you to interact with the contract. For instance there is one to createListings, cancelListings, addExchanges, etc. All which I used to update the contract appropriately and to test the functionality.
 
-To try out Etherscan verification, you first need to deploy a contract to an Ethereum network that's supported by Etherscan, such as Ropsten.
-
-In this project, copy the .env.example file to a file named .env, and then edit it to fill in the details. Enter your Etherscan API key, your Ropsten node URL (eg from Alchemy), and the private key of the account which will send the deployment transaction. With a valid .env file in place, first deploy your contract:
-
-```shell
-hardhat run --network ropsten scripts/sample-script.ts
-```
-
-Then, copy the deployment address and paste it in to replace `DEPLOYED_CONTRACT_ADDRESS` in this command:
-
-```shell
-npx hardhat verify --network ropsten DEPLOYED_CONTRACT_ADDRESS "Hello, Hardhat!"
-```
-
-# Performance optimizations
-
-For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+I have also written a few tests, however, I have not tested the cancellation functions because I did not have enough time to handle the argument decoding, etc.
